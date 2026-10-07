@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compass Maneuvers</title>
+  <meta name="description" content="Browser games about headings, bearings and plotting a course.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%230b1e33' stroke='%23d4a44a' stroke-width='2'/%3E%3Cpath d='M16 4 20 16 16 28 12 16Z' fill='%23d4a44a'/%3E%3Cpath d='M16 4 20 16H12Z' fill='%23e05a47'/%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="topbar">
+    <a href="#home" class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 4 20 16 16 28 12 16Z" fill="currentColor"/><path d="M16 4 20 16H12Z" fill="var(--red)"/></svg>
+      Compass Maneuvers
+    </a>
+    <nav>
+      <a href="#drill">Heading Drill</a>
+      <a href="#reef">Reef Run</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="home" class="view">
+      <div class="hero">
+        <h1>Compass Maneuvers</h1>
+        <p>Two short games about reading headings and plotting a course. Learn the compass rose, then sail it.</p>
+      </div>
+      <div class="cards">
+        <a class="card" href="#drill">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle cx="60" cy="60" r="50" class="c-ring"/>
+            <g class="c-spin"><path d="M60 16 68 60 60 104 52 60Z" class="c-needle"/><path d="M60 16 68 60H52Z" class="c-north"/></g>
+          </svg>
+          <h2>Heading Drill</h2>
+          <p>60 seconds of quick compass questions. Bearings, back bearings and turns. Keep a streak going to multiply your score.</p>
+          <span class="best" data-best="drill"></span>
+          <span class="play">Play →</span>
+        </a>
+        <a class="card" href="#reef">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <rect x="10" y="10" width="100" height="100" rx="8" class="c-sea"/>
+            <circle cx="38" cy="44" r="9" class="c-rock"/><circle cx="76" cy="70" r="11" class="c-rock"/>
+            <path d="M84 30 l12 12 m0 -12 l-12 12" class="c-x"/>
+            <path d="M30 96 l6 -16 l6 16 z" class="c-boat"/>
+          </svg>
+          <h2>Reef Run</h2>
+          <p>Write a list of helm orders, then sail it. Get to the treasure without hitting the reef, using as few orders as you can.</p>
+          <span class="best" data-best="reef"></span>
+          <span class="play">Play →</span>
+        </a>
+      </div>
+      <div class="primer">
+        <h3>The 8 points</h3>
+        <div class="points">
+          <span><b>N</b> 0°</span><span><b>NE</b> 45°</span><span><b>E</b> 90°</span><span><b>SE</b> 135°</span>
+          <span><b>S</b> 180°</span><span><b>SW</b> 225°</span><span><b>W</b> 270°</span><span><b>NW</b> 315°</span>
+        </div>
+        <p><b>Port</b> means turn left (counter-clockwise). <b>Starboard</b> means turn right (clockwise). A <b>back bearing</b> is the opposite direction: add or subtract 180°.</p>
+      </div>
+      <div class="east">
+        <button id="go-east" class="east-btn" aria-describedby="east-hint">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle cx="60" cy="60" r="52" class="c-ring"/>
+            <text x="60" y="24" class="east-n">N</text>
+            <text x="102" y="65" class="east-e">E</text>
+            <g id="east-needle" class="east-needle"><path d="M60 22 68 60 60 98 52 60Z" class="c-needle"/><path d="M60 22 68 60H52Z" class="c-north"/></g>
+          </svg>
+        </button>
+        <div>
+          <h3 id="east-title">Go east, sailor.</h3>
+          <p id="east-hint">Tap the compass to set your heading.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- EASTERN HARBOR: play your own HTML games -->
+    <section id="harbor" class="view" hidden>
+      <div class="game-head">
+        <h2>Eastern Harbor</h2>
+        <a href="#home" class="btn ghost">← Back to port</a>
+      </div>
+      <p class="harbor-intro">You made it east. Drop in an <code>.html</code> game file to play it here. Files stay in this browser and are never uploaded anywhere.</p>
+      <label id="h-drop" class="drop">
+        <input id="h-file" type="file" accept=".html,.htm,text/html" multiple hidden>
+        <b>Choose HTML files</b> or drag them here
+      </label>
+      <p id="h-msg" class="feedback" aria-live="polite"></p>
+      <ul id="h-list" class="harbor-list"></ul>
+      <div id="h-player" class="player" hidden>
+        <div class="player-bar">
+          <b id="h-title"></b>
+          <div>
+            <button id="h-full" class="btn ghost">Fullscreen</button>
+            <button id="h-close" class="btn ghost">Close</button>
+          </div>
+        </div>
+        <iframe id="h-frame" title="Game" sandbox="allow-scripts allow-pointer-lock allow-popups allow-forms allow-modals" allow="fullscreen; gamepad; autoplay"></iframe>
+      </div>
+    </section>
+
+    <!-- HEADING DRILL -->
+    <section id="drill" class="view" hidden>
+      <div class="game-head">
+        <h2>Heading Drill</h2>
+        <div class="stats">
+          <div><small>Time</small><b id="d-time">60</b></div>
+          <div><small>Score</small><b id="d-score">0</b></div>
+          <div><small>Streak</small><b id="d-streak">×1</b></div>
+          <div><small>Best</small><b id="d-best">0</b></div>
+        </div>
+      </div>
+      <div class="drill-wrap">
+        <p id="d-prompt" class="prompt">Tap the matching direction on the ring.</p>
+        <svg id="d-dial" viewBox="0 0 320 320" class="dial" role="group" aria-label="Compass ring"></svg>
+        <p id="d-feedback" class="feedback" aria-live="polite"></p>
+        <button id="d-start" class="btn primary">Start drill</button>
+      </div>
+    </section>
+
+    <!-- REEF RUN -->
+    <section id="reef" class="view" hidden>
+      <div class="game-head">
+        <h2>Reef Run</h2>
+        <div class="stats">
+          <div><small>Level</small><b id="r-level">1</b></div>
+          <div><small>Par</small><b id="r-par">–</b></div>
+          <div><small>Orders</small><b id="r-count">0</b></div>
+          <div><small>Stars</small><b id="r-stars">0</b></div>
+        </div>
+      </div>
+      <div class="reef-layout">
+        <div>
+          <div id="r-board" class="board"></div>
+          <div class="level-nav">
+            <button id="r-prev" class="btn ghost">← Prev</button>
+            <span id="r-levelstars"></span>
+            <button id="r-next" class="btn ghost">Next →</button>
+          </div>
+        </div>
+        <div class="helm">
+          <p class="helm-heading">Heading after orders: <b id="r-heading">N 0°</b></p>
+          <div class="helm-btns">
+            <button class="btn ahead" data-cmd="A">Ahead +1</button>
+            <button class="btn" data-cmd="L1">⟲ Port 45°</button>
+            <button class="btn" data-cmd="R1">Starboard 45° ⟳</button>
+            <button class="btn" data-cmd="L2">⟲ Port 90°</button>
+            <button class="btn" data-cmd="R2">Starboard 90° ⟳</button>
+          </div>
+          <ol id="r-queue" class="queue" aria-label="Orders"></ol>
+          <div class="helm-actions">
+            <button id="r-undo" class="btn ghost">Undo</button>
+            <button id="r-clear" class="btn ghost">Clear</button>
+            <button id="r-sail" class="btn primary">Set sail ⛵</button>
+          </div>
+          <p id="r-msg" class="feedback" aria-live="polite"></p>
+          <details class="rules">
+            <summary>How to play</summary>
+            <p>Your ship starts facing the way its bow points. Add orders, then press <b>Set sail</b>. Pressing <b>Ahead</b> again right after an Ahead order makes that order longer, up to 4 squares. Each order counts as one, however far it goes.</p>
+            <p>Keyboard: ↑ ahead, ← → turn 45°, Q / E turn 90°, Enter to sail, Backspace to undo.</p>
+            <p>Reach the ✕ without hitting a rock or sailing off the chart. If you match par, you get ★★★.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>Compass Maneuvers · made for fun</footer>
+
+  <script src="js/storage.js"></script>
+  <script src="js/drill.js"></script>
+  <script src="js/reef.js"></script>
+  <script src="js/harbor.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
