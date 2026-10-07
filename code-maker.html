@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Code Maker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main>
+    <div class="game-head">
+      <h2>Code Maker</h2>
+      <a href="./#harbor" class="btn ghost">Go to the Harbor →</a>
+    </div>
+    <p class="harbor-intro">Pick some <code>.html</code> game files and make a code from them. Anyone who pastes the code into the Eastern Harbor gets all of those games. Everything happens in this browser, and nothing is uploaded.</p>
+    <label id="m-drop" class="drop">
+      <input id="m-file" type="file" accept=".html,.htm,text/html" multiple hidden>
+      <b>Choose HTML files</b> or drag them here
+    </label>
+    <ul id="m-list" class="harbor-list"></ul>
+    <div class="share">
+      <button id="m-make" class="btn primary" disabled>Make code</button>
+      <textarea id="m-code" rows="5" readonly placeholder="Your code will appear here" spellcheck="false"></textarea>
+      <div class="helm-actions">
+        <button id="m-copy" class="btn" disabled>Copy code</button>
+        <span id="m-msg" class="share-note" aria-live="polite"></span>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/sharecode.js"></script>
+  <script>
+    (() => {
+      const $ = (id) => document.getElementById(id);
+      const files = []; // { name, html }
+
+      const sizeText = (n) => (n < 1048576 ? `${Math.max(1, Math.round(n / 1024))} KB` : `${(n / 1048576).toFixed(1)} MB`);
+
+      function render() {
+        $('m-list').innerHTML = '';
+        files.forEach((f, i) => {
+          const li = document.createElement('li');
+          const name = document.createElement('span');
+          name.textContent = f.name;
+          const size = document.createElement('small');
+          size.textContent = sizeText(f.html.length);
+          const del = document.createElement('button');
+          del.className = 'btn ghost';
+          del.textContent = 'Remove';
+          del.addEventListener('click', () => { files.splice(i, 1); stale(); render(); });
+          li.append(name, size, del);
+          $('m-list').appendChild(li);
+        });
+        $('m-make').disabled = !files.length;
+      }
+
+      function stale() {
+        $('m-code').value = '';
+        $('m-copy').disabled = true;
+        $('m-msg').textContent = '';
+      }
+
+      async function add(list) {
+        for (const f of [...list]) {
+          if (!/\.html?$/i.test(f.name) && f.type !== 'text/html') continue;
+          files.push({ name: f.name.replace(/\.html?$/i, '').replace(/[-_]+/g, ' '), html: await f.text() });
+        }
+        stale();
+        render();
+      }
+
+      $('m-file').addEventListener('change', (e) => { add(e.target.files); e.target.value = ''; });
+      $('m-drop').addEventListener('dragover', (e) => { e.preventDefault(); $('m-drop').classList.add('over'); });
+      $('m-drop').addEventListener('dragleave', () => $('m-drop').classList.remove('over'));
+      $('m-drop').addEventListener('drop', (e) => { e.preventDefault(); $('m-drop').classList.remove('over'); add(e.dataTransfer.files); });
+
+      $('m-make').addEventListener('click', async () => {
+        try {
+          const code = await ShareCode.make(files);
+          $('m-code').value = code;
+          $('m-copy').disabled = false;
+          $('m-msg').textContent = `Code for ${files.length} game${files.length > 1 ? 's' : ''}, ${sizeText(code.length)} long.`;
+        } catch {
+          $('m-msg').textContent = 'This browser cannot make codes. Try a recent Chrome, Edge, Firefox or Safari.';
+        }
+      });
+
+      $('m-copy').addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText($('m-code').value);
+          $('m-msg').textContent = 'Copied!';
+        } catch {
+          $('m-code').select();
+          $('m-msg').textContent = 'Press Ctrl/Cmd+C to copy the selected code.';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -71,16 +71,44 @@ const Harbor = (() => {
   async function addFiles(files) {
     const html = [...files].filter((f) => /\.html?$/i.test(f.name) || f.type === 'text/html');
     if (!html.length) { msg('Only .html files can be played here.', 'bad'); return; }
+    const entries = await Promise.all(html.map(async (f) => ({ name: prettyName(f), html: await f.text() })));
+    const added = await addGames(entries);
+    if (added.length === 1) play(added[0].id);
+  }
+
+  // Adds {name, html} entries, skipping exact duplicates of games already in the list.
+  async function addGames(entries) {
+    const added = [];
     let stored = 0;
-    for (const file of html) {
-      const g = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, name: prettyName(file), html: await file.text(), added: Date.now() };
+    for (const e of entries) {
+      if (games.some((g) => g.html === e.html)) continue;
+      const g = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, name: e.name, html: e.html, added: Date.now() };
       games.push(g);
+      added.push(g);
       if (await save(g)) stored++;
     }
     renderList();
-    if (stored < html.length) msg('Added for this visit, but this browser would not save them for next time.', 'bad');
-    else msg(`Added ${html.length} game${html.length > 1 ? 's' : ''}.`, 'good');
-    if (html.length === 1) play(games[games.length - 1].id);
+    const skipped = entries.length - added.length;
+    const skipNote = skipped ? ` (${skipped} already here)` : '';
+    if (!added.length) msg(`No new games${skipNote}.`);
+    else if (stored < added.length) msg('Added for this visit, but this browser would not save them for next time.', 'bad');
+    else msg(`Added ${added.length} game${added.length > 1 ? 's' : ''}${skipNote}.`, 'good');
+    return added;
+  }
+
+  async function loadCode() {
+    const code = els.code.value.trim();
+    if (!code) { msg('Paste a share code first.', 'bad'); return; }
+    let entries;
+    try {
+      entries = await ShareCode.read(code);
+    } catch {
+      msg('That code did not work. Make sure you copied the whole thing.', 'bad');
+      return;
+    }
+    if (!entries.length) { msg('That code has no games in it.', 'bad'); return; }
+    await addGames(entries);
+    els.code.value = '';
   }
 
   function renderList() {
@@ -90,7 +118,7 @@ const Harbor = (() => {
       const name = document.createElement('span');
       name.textContent = g.name;
       const size = document.createElement('small');
-      size.textContent = `${Math.max(1, Math.round(g.html.length / 1024))} KB`;
+      size.textContent = g.html.length < 1048576 ? `${Math.max(1, Math.round(g.html.length / 1024))} KB` : `${(g.html.length / 1048576).toFixed(1)} MB`;
       const playBtn = document.createElement('button');
       playBtn.className = 'btn primary';
       playBtn.textContent = 'Play';
@@ -133,7 +161,9 @@ const Harbor = (() => {
       east: $('go-east'), needle: $('east-needle'), eastTitle: $('east-title'), eastHint: $('east-hint'),
       drop: $('h-drop'), file: $('h-file'), msg: $('h-msg'), list: $('h-list'),
       player: $('h-player'), title: $('h-title'), frame: $('h-frame'), full: $('h-full'), close: $('h-close'),
+      code: $('h-code'), load: $('h-load'),
     });
+    els.load.addEventListener('click', loadCode);
     els.east.addEventListener('click', tapEast);
     resetEast();
 

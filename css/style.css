@@ -248,3 +248,19 @@ footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 20
 @media (max-width: 520px) {
   .helm-btns .btn { font-size: .88rem; padding: 10px 6px; }
 }
+
+/* ---------- share codes ---------- */
+.share {
+  display: grid; gap: 10px; margin: 0 0 20px; padding: 16px 18px;
+  border-radius: var(--radius); background: rgba(11,30,51,.7); border: 1px solid rgba(212,164,74,.3);
+}
+.share h3 { margin: 0; color: var(--brass-hi); }
+.share p { margin: 0; color: var(--muted); }
+.share .btn { justify-self: start; }
+.share textarea {
+  width: 100%; resize: vertical; padding: 10px 12px; border-radius: 10px;
+  background: var(--sea-0); color: var(--parch); border: 1px solid rgba(212,164,74,.35);
+  font: .85rem/1.4 ui-monospace, Menlo, monospace; word-break: break-all;
+}
+.share textarea:focus { outline: 2px solid var(--brass-hi); outline-offset: 1px; }
+.share-note { color: var(--muted); font-size: .9rem; align-self: center; }
