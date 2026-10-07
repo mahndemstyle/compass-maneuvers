@@ -19,7 +19,6 @@
     </a>
     <nav>
       <a href="#drill">Heading Drill</a>
-      <a href="#reef">Reef Run</a>
     </nav>
   </header>
 
@@ -28,7 +27,7 @@
     <section id="home" class="view">
       <div class="hero">
         <h1>Compass Maneuvers</h1>
-        <p>Two short games about reading headings and plotting a course. Learn the compass rose, then sail it.</p>
+        <p>A quick game about reading headings, bearings and turns. Learn the compass rose.</p>
       </div>
       <div class="cards">
         <a class="card" href="#drill">
@@ -39,18 +38,6 @@
           <h2>Heading Drill</h2>
           <p>60 seconds of quick compass questions. Bearings, back bearings and turns. Keep a streak going to multiply your score.</p>
           <span class="best" data-best="drill"></span>
-          <span class="play">Play →</span>
-        </a>
-        <a class="card" href="#reef">
-          <svg viewBox="0 0 120 120" aria-hidden="true">
-            <rect x="10" y="10" width="100" height="100" rx="8" class="c-sea"/>
-            <circle cx="38" cy="44" r="9" class="c-rock"/><circle cx="76" cy="70" r="11" class="c-rock"/>
-            <path d="M84 30 l12 12 m0 -12 l-12 12" class="c-x"/>
-            <path d="M30 96 l6 -16 l6 16 z" class="c-boat"/>
-          </svg>
-          <h2>Reef Run</h2>
-          <p>Write a list of helm orders, then sail it. Get to the treasure without hitting the reef, using as few orders as you can.</p>
-          <span class="best" data-best="reef"></span>
           <span class="play">Play →</span>
         </a>
       </div>
@@ -129,58 +116,12 @@
       </div>
     </section>
 
-    <!-- REEF RUN -->
-    <section id="reef" class="view" hidden>
-      <div class="game-head">
-        <h2>Reef Run</h2>
-        <div class="stats">
-          <div><small>Level</small><b id="r-level">1</b></div>
-          <div><small>Par</small><b id="r-par">–</b></div>
-          <div><small>Orders</small><b id="r-count">0</b></div>
-          <div><small>Stars</small><b id="r-stars">0</b></div>
-        </div>
-      </div>
-      <div class="reef-layout">
-        <div>
-          <div id="r-board" class="board"></div>
-          <div class="level-nav">
-            <button id="r-prev" class="btn ghost">← Prev</button>
-            <span id="r-levelstars"></span>
-            <button id="r-next" class="btn ghost">Next →</button>
-          </div>
-        </div>
-        <div class="helm">
-          <p class="helm-heading">Heading after orders: <b id="r-heading">N 0°</b></p>
-          <div class="helm-btns">
-            <button class="btn ahead" data-cmd="A">Ahead +1</button>
-            <button class="btn" data-cmd="L1">⟲ Port 45°</button>
-            <button class="btn" data-cmd="R1">Starboard 45° ⟳</button>
-            <button class="btn" data-cmd="L2">⟲ Port 90°</button>
-            <button class="btn" data-cmd="R2">Starboard 90° ⟳</button>
-          </div>
-          <ol id="r-queue" class="queue" aria-label="Orders"></ol>
-          <div class="helm-actions">
-            <button id="r-undo" class="btn ghost">Undo</button>
-            <button id="r-clear" class="btn ghost">Clear</button>
-            <button id="r-sail" class="btn primary">Set sail ⛵</button>
-          </div>
-          <p id="r-msg" class="feedback" aria-live="polite"></p>
-          <details class="rules">
-            <summary>How to play</summary>
-            <p>Your ship starts facing the way its bow points. Add orders, then press <b>Set sail</b>. Pressing <b>Ahead</b> again right after an Ahead order makes that order longer, up to 4 squares. Each order counts as one, however far it goes.</p>
-            <p>Keyboard: ↑ ahead, ← → turn 45°, Q / E turn 90°, Enter to sail, Backspace to undo.</p>
-            <p>Reach the ✕ without hitting a rock or sailing off the chart. If you match par, you get ★★★.</p>
-          </details>
-        </div>
-      </div>
-    </section>
   </main>
 
   <footer>Compass Maneuvers · made for fun</footer>
 
   <script src="js/storage.js"></script>
   <script src="js/drill.js"></script>
-  <script src="js/reef.js"></script>
   <script src="js/sharecode.js"></script>
   <script src="js/harbor.js"></script>
   <script src="js/main.js"></script>

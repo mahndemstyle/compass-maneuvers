@@ -1,6 +1,6 @@
-// Hash router: #home, #drill, #reef, #harbor
+// Hash router: #home, #drill, #harbor
 (() => {
-  const views = ['home', 'drill', 'reef', 'harbor'];
+  const views = ['home', 'drill', 'harbor'];
 
   function route() {
     const name = views.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
@@ -15,13 +15,10 @@
 
   function renderBests() {
     const drill = store.get('drillBest', 0);
-    const reef = Reef.totalStars();
     document.querySelector('[data-best="drill"]').textContent = drill ? `Best score: ${drill}` : '';
-    document.querySelector('[data-best="reef"]').textContent = reef ? `Stars earned: ${reef} ★` : '';
   }
 
   Drill.init();
-  Reef.init();
   Harbor.init();
   window.addEventListener('hashchange', route);
   route();
