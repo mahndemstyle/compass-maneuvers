@@ -96,9 +96,48 @@ const Harbor = (() => {
     return added;
   }
 
+  // Word codes load game packs hosted with the site (keys are lowercase).
+  const PACKS = {
+    bedwars: [
+      ['Chat Bot', 'chat-bot.html'],
+      ['Emulator.JS', 'emulator-js.html'],
+      ['Geodash', 'geodash.html'],
+      ['Minecraft', 'minecraft.html'],
+      ['Moto X3M', 'motox3m.html'],
+      ['Run 3', 'run-3.html'],
+      ['Slope', 'slope.html'],
+      ['HTML Editor', 'html-editor.html'],
+    ].map(([name, file]) => ({ name, url: `games/bedwars/${file}` })),
+  };
+
+  async function loadPack(pack) {
+    els.load.disabled = true;
+    const entries = [];
+    let failed = 0;
+    try {
+      for (let i = 0; i < pack.length; i++) {
+        msg(`Loading ${pack[i].name} (${i + 1} of ${pack.length})…`);
+        try {
+          const res = await fetch(pack[i].url);
+          if (!res.ok) throw new Error(res.status);
+          entries.push({ name: pack[i].name, html: await res.text() });
+        } catch {
+          failed++;
+        }
+      }
+      if (entries.length) await addGames(entries);
+      if (failed) msg(`${failed} game${failed > 1 ? 's' : ''} could not be downloaded. Check your connection and try the code again.`, 'bad');
+    } finally {
+      els.load.disabled = false;
+    }
+    els.code.value = '';
+  }
+
   async function loadCode() {
     const code = els.code.value.trim();
     if (!code) { msg('Paste a share code first.', 'bad'); return; }
+    const pack = PACKS[code.toLowerCase()];
+    if (pack) { await loadPack(pack); return; }
     let entries;
     try {
       entries = await ShareCode.read(code);

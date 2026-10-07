@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Simple HTML Editor & Downloader</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      display: grid; grid-template-rows: auto 1fr; height: 100vh;
+      background: #111; color: #eee;
+    }
+    header {
+      display: flex; gap: 0.5rem; align-items: center; padding: 0.75rem 1rem; background: #1c1c1c;
+      border-bottom: 1px solid #2a2a2a; flex-wrap: wrap;
+    }
+    header h1 { font-size: 1rem; margin: 0 1rem 0 0; color: #9ad; font-weight: 600; }
+    input[type="text"] {
+      width: 16rem; padding: 0.4rem 0.6rem; border-radius: 6px; border: 1px solid #333; background: #191919; color: #eee;
+    }
+    .btn {
+      padding: 0.5rem 0.8rem; border-radius: 6px; border: 1px solid #333; background: #242424; color: #eee; cursor: pointer;
+    }
+    .btn:hover { background: #2d2d2d; }
+    .row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; padding: 0.75rem; height: calc(100vh - 60px);
+    }
+    .panel {
+      display: flex; flex-direction: column; border: 1px solid #2a2a2a; border-radius: 8px; overflow: hidden; min-height: 0;
+    }
+    .panel h2 {
+      margin: 0; padding: 0.5rem 0.75rem; font-size: 0.9rem; background: #1a1a1a; border-bottom: 1px solid #2a2a2a; color: #cdd;
+    }
+    textarea {
+      flex: 1; width: 100%; resize: none; border: 0; background: #121212; color: #e8e8e8; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      padding: 0.75rem; line-height: 1.5; font-size: 0.95rem; outline: none;
+    }
+    iframe {
+      flex: 1; border: 0; background: #fff; outline: none;
+    }
+    .status {
+      font-size: 0.8rem; color: #9a9a9a; padding: 0.4rem 0.75rem; border-top: 1px solid #2a2a2a; background: #161616;
+    }
+    .drop-hint {
+      position: absolute; inset: 0; display: none; place-items: center; background: rgba(50,50,50,0.6); color: #eee; font-weight: 600;
+      pointer-events: none; text-align: center;
+    }
+    .panel.editor.drag .drop-hint { display: grid; }
+    @media (max-width: 900px) { .row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>HTML Editor</h1>
+    <input id="filename" type="text" placeholder="Filename (e.g., index.html)" />
+    <button class="btn" id="newBtn" title="Clear editor">New</button>
+    <input type="file" id="openFile" accept=".html,.htm,text/html" hidden />
+    <button class="btn" id="openBtn" title="Open an HTML file">Open…</button>
+    <button class="btn" id="previewBtn" title="Render in preview">Preview</button>
+    <button class="btn" id="downloadBtn" title="Download as .html">Download</button>
+    <span id="autosaveState" style="margin-left:auto; font-size:0.85rem; color:#9a9a9a;">Autosave: On</span>
+  </header>
+
+  <main class="row">
+    <section class="panel editor" id="editorPanel">
+      <h2>Editor</h2>
+      <div class="drop-hint">Drop an .html file to load</div>
+      <textarea id="editor" spellcheck="false"></textarea>
+      <div class="status" id="status">Ready</div>
+    </section>
+    <section class="panel">
+      <h2>Preview</h2>
+      <iframe id="preview" sandbox="allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts"></iframe>
+      <div class="status">Sandboxed preview</div>
+    </section>
+  </main>
+
+  <script>
+    const editor = document.getElementById('editor');
+    const preview = document.getElementById('preview');
+    const statusEl = document.getElementById('status');
+    const fileNameInput = document.getElementById('filename');
+    const openInput = document.getElementById('openFile');
+    const editorPanel = document.getElementById('editorPanel');
+
+    const STORAGE_KEY = 'simple-html-editor-content';
+    const STORAGE_NAME = 'simple-html-editor-filename';
+
+    // Restore autosaved content
+    const saved = localStorage.getItem(STORAGE_KEY);
+    const savedName = localStorage.getItem(STORAGE_NAME);
+    if (saved !== null) editor.value = saved;
+    if (savedName) fileNameInput.value = savedName;
+    setStatus('Loaded' + (saved ? ' (autosaved)' : ''));
+
+    // Autosave
+    let autosaveTimer;
+    editor.addEventListener('input', () => {
+      window.clearTimeout(autosaveTimer);
+      autosaveTimer = window.setTimeout(() => {
+        localStorage.setItem(STORAGE_KEY, editor.value);
+        setStatus('Autosaved');
+      }, 300);
+    });
+    fileNameInput.addEventListener('input', () => {
+      localStorage.setItem(STORAGE_NAME, fileNameInput.value);
+    });
+
+    // New
+    document.getElementById('newBtn').addEventListener('click', () => {
+      if (editor.value.trim() && !confirm('Clear current content?')) return;
+      editor.value = '';
+      fileNameInput.value = '';
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_NAME);
+      setStatus('New file');
+      preview.srcdoc = '';
+    });
+
+    // Open…
+    document.getElementById('openBtn').addEventListener('click', () => openInput.click());
+    openInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const text = await file.text();
+      editor.value = text;
+      fileNameInput.value = file.name || 'index.html';
+      localStorage.setItem(STORAGE_KEY, text);
+      localStorage.setItem(STORAGE_NAME, fileNameInput.value);
+      setStatus('File loaded: ' + file.name);
+    });
+
+    // Drag & drop to open
+    ['dragenter','dragover'].forEach(evt => {
+      editorPanel.addEventListener(evt, (e) => {
+        e.preventDefault(); e.stopPropagation();
+        editorPanel.classList.add('drag');
+        setStatus('Drop file to open');
+      });
+    });
+    ['dragleave','drop'].forEach(evt => {
+      editorPanel.addEventListener(evt, (e) => {
+        e.preventDefault(); e.stopPropagation();
+        editorPanel.classList.remove('drag');
+      });
+    });
+    editorPanel.addEventListener('drop', async (e) => {
+      const file = e.dataTransfer.files[0];
+      if (!file) return;
+      const text = await file.text();
+      editor.value = text;
+      fileNameInput.value = file.name || 'index.html';
+      localStorage.setItem(STORAGE_KEY, text);
+      localStorage.setItem(STORAGE_NAME, fileNameInput.value);
+      setStatus('File loaded: ' + file.name);
+    });
+
+    // Preview
+    document.getElementById('previewBtn').addEventListener('click', () => {
+      preview.srcdoc = editor.value;
+      setStatus('Preview updated');
+    });
+
+    // Download
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      const name = (fileNameInput.value || 'index.html').replace(/[/\\?%*:|"<>]/g, '').trim() || 'index.html';
+      const blob = new Blob([editor.value], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setStatus('Downloaded: ' + name);
+    });
+
+    function setStatus(msg) {
+      statusEl.textContent = msg + ' • ' + new Date().toLocaleTimeString();
+    }
+
+    // Starter template for convenience
+    if (!saved) {
+      editor.value =
+`<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Hello</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui; margin: 2rem; }
+    .card { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Hello, world!</h1>
+  <div class="card">Edit this HTML and click Preview or Download.</div>
+</body>
+</html>`;
+    }
+  </script>
+</body>
+</html>
